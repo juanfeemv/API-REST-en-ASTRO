@@ -1,0 +1,49 @@
+---
+export interface Props {
+    receta: {
+        idMeal: string;
+        strMeal: string;
+        strMealThumb: string;
+        strArea: string;
+        strCategory: string;
+        strTags: string | null;
+    };
+}
+
+const { receta } = Astro.props;
+
+// Asigno valores por defecto si faltan datos
+const area = receta.strArea || "Global";
+const categoria = receta.strCategory || "General";
+const etiquetas = receta.strTags ? receta.strTags.split(",") : [];
+---
+
+<article class="tarjeta-receta" data-id-meal={receta.idMeal}>
+    <div class="tarjeta-imagen">
+        <!-- Muestro imagen de la receta con carga diferida -->
+        <img 
+            src={receta.strMealThumb}
+            alt={`Imagen de ${receta.strMeal}`}
+            loading="lazy"
+        />
+    </div>
+    <div class="tarjeta-contenido">
+        <!-- Nombre de la receta -->
+        <h3>{receta.strMeal}</h3>
+
+        <!-- Área y categoría de la receta -->
+        <div class="tarjeta-info">
+            <span>{area}</span>
+            <span>{categoria}</span>
+        </div>
+
+        <!-- Muestro hasta 3 etiquetas -->
+        <div class="tarjeta-etiquetas">
+            {
+                etiquetas
+                    .slice(0, 3)
+                    .map((tag) => <span class="etiqueta">{tag}</span>)
+            }
+        </div>
+    </div>
+</article>

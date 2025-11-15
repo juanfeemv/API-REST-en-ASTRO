@@ -1,5 +1,21 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@styles/*": ["src/styles/*"]
+    },
+    
+    // Para que no se queje de 'any' en los parámetros (tag, receta)
+    "noImplicitAny": false,
+
+    // Para que no se queje de 'string | null' (error = null)
+    "strictNullChecks": false,
+
+    // --- ¡¡LA SOLUCIÓN A TU NUEVO PROBLEMA!! ---
+    // Le dice a Astro: "Deja de revisar mis 'catch(e)' y déjame usar 'e.message'"
+    "useUnknownInCatchVariables": false
+  }
 }

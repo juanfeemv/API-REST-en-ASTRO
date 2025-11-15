@@ -1,0 +1,239 @@
+:root {
+  --color-fondo: #fdf8f4;
+  --color-texto: #333;
+  --color-titulo: #222;
+  --color-primario: #c05621;
+  --color-tarjeta: #ffffff;
+  --sombra-tarjeta: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sombra-tarjeta-hover: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ESTILOS GENERALES */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  margin: 0;
+  padding: 0;
+}
+
+.contenedor-principal {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.encabezado-sitio {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.encabezado-sitio h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  color: var(--color-titulo);
+  margin: 0;
+}
+
+.encabezado-sitio p {
+  font-size: 1.15rem;
+  color: var(--color-texto);
+  opacity: 0.8;
+}
+
+/* FILTROS */
+.filtros-contenedor {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--color-tarjeta);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filtro-busqueda {
+  flex-grow: 1;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-width: 250px;
+}
+
+/* REJILLA DE RECETAS */
+.rejilla-recetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* TARJETA DE RECETA */
+.tarjeta-receta {
+  background-color: var(--color-tarjeta);
+  border-radius: 12px;
+  box-shadow: var(--sombra-tarjeta);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tarjeta-receta:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--sombra-tarjeta-hover);
+}
+
+.tarjeta-imagen img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.tarjeta-contenido {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-contenido h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  color: var(--color-titulo);
+  margin: 0 0 0.75rem 0;
+}
+
+.tarjeta-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--color-primario);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.tarjeta-etiquetas {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.etiqueta {
+  background-color: #fdf8f4;
+  color: var(--color-primario);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  border: 1px solid #fdecdf;
+}
+
+/* MODAL */
+.modal-superposicion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.modal-contenido {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.modal-oculto {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+}
+
+.modal-cerrar {
+  float: right;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.modal-cerrar:hover {
+  color: #333;
+}
+
+/* CONTENIDO DEL MODAL */
+.modal-cargando {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+  padding: 2rem;
+}
+
+.modal-receta h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-top: 0;
+  color: var(--color-titulo);
+}
+
+.modal-receta img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.modal-receta h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--color-primario);
+  border-bottom: 2px solid #fdecdf;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+}
+
+.modal-receta-ingredientes {
+  padding-left: 0;
+  list-style-type: none;
+  columns: 2;
+  -webkit-columns: 2;
+  -moz-columns: 2;
+  gap: 1rem;
+}
+
+.modal-receta-ingredientes li {
+  margin-bottom: 0.5rem;
+}
+
+.modal-receta-instrucciones {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
