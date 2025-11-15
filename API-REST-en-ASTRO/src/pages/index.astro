@@ -1,16 +1,86 @@
 ---
+import Plantilla from '../layouts/Layout.astro';
+import GestorRecetas from '../components/GestorRecetas.astro';
 
+interface Receta {
+    idMeal: string;
+    strMeal: string;
+    strMealThumb: string;
+    strArea: string; 
+    strCategory: string; 
+    strTags: string | null;
+}
+
+let recetas: Receta[] = []; // Array vacío inicial de recetas
+let error = null;
+
+try {
+    // Creo un array con todas las letras del abecedario
+    const letras = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+    // Genero una URL para cada letra
+    const urls = letras.map(letra => `https://www.themealdb.com/api/json/v1/1/search.php?f=${letra}`);
+
+    // Ejecuto todas las llamadas en paralelo
+    const respuestas = await Promise.all(urls.map(url => fetch(url)));
+
+    // Convierto las respuestas a JSON y manejo posibles fallos
+    const datosJson = await Promise.all(
+        respuestas.map(res => {
+            if (!res.ok) {
+                console.warn(`Error HTTP en una letra: ${res.status}`);
+                return null;
+            }
+            return res.json();
+        })
+    );
+
+    // Combino todos los arrays de 'meals' en uno solo
+    recetas = datosJson
+        .filter(Boolean)
+        .map(datos => datos.meals)
+        .flat()
+        .filter(Boolean);
+
+    if (recetas.length === 0) {
+        throw new Error('No se encontraron recetas.');
+    }
+
+} catch (e) {
+    console.error(e);
+    error = `¡Oh no! No pudimos cargar las recetas. (Error: ${e.message})`;
+}
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Plantilla title="Recetas Increíbles | TheMealDB">
+
+    <div class="contenedor-principal">
+        
+        <header class="encabezado-sitio">
+            <h1>Recetas con Juanfe</h1>
+            <p>TheMealDB</p>
+        </header>
+
+        <main>
+            {error && (
+                // Muestro un mensaje de error
+                <p class="mensaje-error">{error}</p>
+            )}
+
+            <GestorRecetas recetasIniciales={recetas} />
+        </main>
+        
+    </div>
+
+</Plantilla>
+
+<style>
+    .mensaje-error {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #d9534f;
+        background-color: #f2dede;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+</style>

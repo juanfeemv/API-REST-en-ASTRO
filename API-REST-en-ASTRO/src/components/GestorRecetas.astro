@@ -1,0 +1,151 @@
+---
+import TarjetaReceta from "./TarjetaReceta.astro";
+
+interface Receta {
+    idMeal: string;
+    strMeal: string;
+    strMealThumb: string;
+    strArea: string;
+    strCategory: string;
+    strTags: string | null;
+}
+
+export interface Props {
+    recetasIniciales: Receta[];
+}
+
+const { recetasIniciales } = Astro.props;
+---
+
+<!-- Contenedor principal con filtros y rejilla -->
+<div class="gestor-contenedor">
+    <div class="filtros-contenedor">
+        <input
+            type="search"
+            id="filtro-busqueda"
+            placeholder="Buscar recetas por nombre..."
+            class="filtro-busqueda"
+        />
+    </div>
+
+    <div id="rejilla-recetas" class="rejilla-recetas">
+        {
+            recetasIniciales.map((receta) => (
+                <div
+                    class="contenedor-tarjeta-filtro"
+                    data-titulo={receta.strMeal.toLowerCase()}
+                >
+                    <TarjetaReceta receta={receta} />
+                </div>
+            ))
+        }
+    </div>
+</div>
+
+<!-- Modal oculto por defecto -->
+<div id="modal-superposicion" class="modal-superposicion modal-oculto">
+    <div id="modal-contenido" class="modal-contenido"></div>
+</div>
+
+<script>
+    // Selecciono elementos del DOM
+    const filtroBusqueda = document.getElementById("filtro-busqueda");
+    const rejillaRecetas = document.getElementById("rejilla-recetas");
+
+    // Activo filtro en tiempo real si los elementos existen
+    if (filtroBusqueda instanceof HTMLInputElement && rejillaRecetas instanceof HTMLElement) {
+        filtroBusqueda.addEventListener("input", () => {
+            const termino = filtroBusqueda.value.toLowerCase();
+            const tarjetasEnRejilla = rejillaRecetas.querySelectorAll(".contenedor-tarjeta-filtro");
+
+            // Muestro u oculto tarjetas según el término de búsqueda
+            tarjetasEnRejilla.forEach((tarjeta) => {
+                if (tarjeta instanceof HTMLElement) {
+                    const titulo = tarjeta.dataset.titulo;
+                    if (titulo) {
+                        tarjeta.style.display = titulo.includes(termino) ? "block" : "none";
+                    }
+                }
+            });
+        });
+    }
+
+    const modalSuperposicion = document.getElementById("modal-superposicion");
+    const modalContenido = document.getElementById("modal-contenido");
+
+    // Activo modal al hacer clic en una tarjeta
+    if (rejillaRecetas && modalSuperposicion && modalContenido) {
+        rejillaRecetas.addEventListener("click", (e) => {
+            if (e.target instanceof Element) {
+                const tarjeta = e.target.closest(".tarjeta-receta");
+                if (tarjeta instanceof HTMLElement) {
+                    const id = tarjeta.dataset.idMeal;
+                    if (id) abrirModalConReceta(id);
+                }
+            }
+        });
+
+        // Abro modal y cargar datos de la receta desde la API
+        async function abrirModalConReceta(id) {
+            modalSuperposicion.classList.remove("modal-oculto");
+            modalContenido.innerHTML = '<div class="modal-cargando">Cargando receta...</div>';
+
+            try {
+                const respuesta = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+                const datos = await respuesta.json();
+
+                if (datos.meals && datos.meals[0]) {
+                    const receta = datos.meals[0];
+                    modalContenido.innerHTML = crearHTMLModal(receta);
+
+                    const modalCerrar = document.getElementById("modal-cerrar-boton");
+                    if (modalCerrar) modalCerrar.addEventListener("click", cerrarModal);
+                } else {
+                    throw new Error("Receta no encontrada.");
+                }
+            } catch (error) {
+                console.error(error);
+                modalContenido.innerHTML = `<div class="modal-cargando">Error al cargar la receta.</div>`;
+                setTimeout(cerrarModal, 2000);
+            }
+        }
+
+        function cerrarModal() {
+            modalSuperposicion.classList.add("modal-oculto");
+            modalContenido.innerHTML = "";
+        }
+
+        modalSuperposicion.addEventListener("click", (e) => {
+            if (e.target === modalSuperposicion) cerrarModal();
+        });
+
+        // Genero HTML del modal con ingredientes e instrucciones
+        function crearHTMLModal(receta) {
+            let ingredientesHTML = "";
+            for (let i = 1; i <= 20; i++) {
+                const ingrediente = receta[`strIngredient${i}`];
+                const medida = receta[`strMeasure${i}`];
+
+                if (!ingrediente) break;
+
+                ingredientesHTML += `<li><strong>${medida}</strong> ${ingrediente}</li>`;
+            }
+
+            return `
+                <span class="modal-cerrar" id="modal-cerrar-boton">&times;</span>
+                <div class="modal-receta">
+                    <h2>${receta.strMeal}</h2>
+                    <img src="${receta.strMealThumb}" alt="${receta.strMeal}" />
+                    
+                    <h3>Ingredientes</h3>
+                    <ul class="modal-receta-ingredientes">
+                        ${ingredientesHTML}
+                    </ul>
+
+                    <h3>Instrucciones</h3>
+                    <p class="modal-receta-instrucciones">${receta.strInstructions}</p>
+                </div>
+            `;
+        }
+    }
+</script>
